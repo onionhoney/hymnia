@@ -55,6 +55,7 @@ export class SignUpView extends Component {
                 placeholder="Name"
                 placeholderTextColor="#FFF"
                 underlineColorAndroid='transparent'
+                value="Zhouheng Sun"
               />
             </View>
 
@@ -70,6 +71,7 @@ export class SignUpView extends Component {
                 style={[styles.input, styles.whiteFont]}
                 placeholder="Email"
                 placeholderTextColor="#FFF"
+                value="zhouhengsun@gmail.com"
               />
             </View>
 
@@ -86,6 +88,7 @@ export class SignUpView extends Component {
                 style={[styles.input, styles.whiteFont]}
                 placeholder="Password"
                 placeholderTextColor="#FFF"
+                value="sdsfsdsfd"
               />
             </View>
 

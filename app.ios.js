@@ -7,7 +7,7 @@ import R from './constants'
 export default class App extends Component {
     constructor(props) {
         super(props)
-        this.state = {"where":"SignUp", userInfo: {}, query:""}
+        this.state = {"where":"Login", userInfo: {}, query:""}
         this.ip = R.serverURL + "/login"
         this.goToCamera = this.goToCamera.bind(this)
     }

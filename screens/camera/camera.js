@@ -11,6 +11,7 @@ import Camera from 'react-native-camera'
 import { constants as CameraConstants } from 'react-native-camera'
 import R from '../../constants'
 import ImageResizer from 'react-native-image-resizer'
+import Spinner from 'react-native-spinkit'
 
 export default class CameraView extends Component {
   constructor(props) {
@@ -27,12 +28,16 @@ export default class CameraView extends Component {
                 type="front"
                 style={styles.preview}
                 aspect={Camera.constants.Aspect.fill} >
-              <TouchableOpacity
-                style={styles.capture}
-                onPress={this.takePicture.bind(this)} >
-                <Image source={this.photo} />
-              </TouchableOpacity>
             </Camera>
+
+            <TouchableOpacity style={{
+              flex: 1, backgroundColor: '#d35400', alignItems: 'center'}}
+              onPress={this.takePicture.bind(this)}>
+              <Spinner style={{"margin-top":-20}}
+                isVisible={true}
+                size={150} type={'Pulse'} color={"#FFFFFF"} 
+              />
+            </TouchableOpacity>
         </View>
     );
   }
@@ -54,16 +59,15 @@ export default class CameraView extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    flexDirection: 'row'
   },
   preview: {
-    flex: 1,
+    flex: 5,
     justifyContent: 'flex-end',
     alignItems: 'center'
   },
   capture: {
-    flex: 0,
-    backgroundColor: '#fff', 
+    flex: 1,
+    backgroundColor: '#d35400', 
     borderRadius: 40,
     padding: 15, 
     margin: 40

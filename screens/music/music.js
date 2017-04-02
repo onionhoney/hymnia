@@ -15,6 +15,16 @@ import Spinner from 'react-native-spinkit'
 import CognitiveHandler from './cognitiveHandler'
 import {querySong} from './spotifyHandler'
 import R from '../../constants'
+import { ReactNativeAudioStreaming } from 'react-native-audio-streaming'
+import { Player } from 'react-native-audio-streaming'
+
+class PlayerUI extends Component {
+  render() {
+    return (
+        <Player url={"http://lacavewebradio.chickenkiller.com:8000/stream.mp3"} />
+    );
+  }
+}
 
 export default class MusicPlayer extends Component {
   constructor(props) {
@@ -49,43 +59,53 @@ export default class MusicPlayer extends Component {
           throw Error("Cognitive API returns invalid status " + res.status + ".")
         }
         this.setState({ waitingFeedbacks: this.state.waitingFeedbacks - 1 })
-        let mood = "";
 
-        for (let key in res.data) {
-          if (res.data.hasOwnProperty(key) && key != 'image_id') {
-            mood = key;
-          }
-        }
+        let mood = Object.keys(res.data) //.filter( (x) => x != "image_id")
 
-        //let mood = Object.keys(res.data) //.filter( (x) => x != "image_id")
         console.log("Received Cognitive analysis", res.data, "mood is ", mood);
+
         console.log("QuerySong = ", querySong)
+
         return querySong(mood);
       })
       .then((result) => {
         console.log("Received Spotify recommendation", result)
+        this.setState({ waitingFeedbacks: this.state.waitingFeedbacks - 1 })
+        return this.getFirstVideoID(result.artist + " " + result.songName)
+      })
+      .then((videoID) => {
+        console.log("About to play youtube videoID:", videoID)
+        this.startStream(videoID)
       })
       .catch((err) => { 
         console.log(err) 
-        this.props.goRetake()
+        this.retake()
       })
   }
 
+  startStream(videoID) {
+      let url = R.serverURL + '/stream' + '/' + videoID
+      ReactNativeAudioStreaming.play(url, {showIniOSMediaCenter: true, showInAndroidNotifications: true})
+  }
+
+  retake() {
+    ReactNativeAudioStreaming.stop()
+    this.props.goRetake() 
+  }
   getFirstVideoID(query) {
     let queryString = 'https://www.googleapis.com/youtube/v3/search?part=snippet&q='
       + query + '&key=AIzaSyD5Z4VAS7LM4zoQ9kRY88X06gid0_x9Pk8'
     queryString = encodeURI(queryString)
-    console.log(queryString)
-    fetch(queryString)
-      .then((res) => { return res.json() })
-      .then((data) => {
-        let result = data.items[0].id.videoId
-        console.log(result)
-        //  this.setState({ videoID: result })
-      })
-      .catch((err) => {
-        return console.log(err)
-      })
+
+    return new Promise((resolve, reject) => {
+      fetch(queryString)
+        .then((res) => res.json())
+        .then((data) => {
+          let result = data.items[0].id.videoId
+          resolve(result)
+        })
+        .catch(reject)
+    })
   }
 
   render() {
@@ -101,7 +121,7 @@ export default class MusicPlayer extends Component {
         <Text>
           {recommendation}
         </Text>
-        <TouchableOpacity style={styles.btn} onPress={this.props.goRetake}>
+        <TouchableOpacity style={styles.btn} onPress={this.retake.bind(this)}>
           <Text style={styles.text}>Retake</Text>
         </TouchableOpacity>
       </View>
@@ -188,5 +208,12 @@ var styles = StyleSheet.create({
 
   text: {
     color: "white"
+  },
+  capture: {
+    flex: 0,
+    backgroundColor: '#fff', 
+    borderRadius: 40,
+    padding: 15, 
+    margin: 40
   }
 });
